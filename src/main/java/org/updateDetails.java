@@ -18,6 +18,8 @@ public class updateDetails {
 
         boolean changeAddress = false;
         boolean changeBirthDate = false;
+        boolean changeID = false;
+        boolean updateMade = false;
 
         LocalDate currDate = LocalDate.now();
         String[] words = birthdate.split("\\s+");
@@ -38,10 +40,20 @@ public class updateDetails {
             changeAddress = true;
         }
 
-        if(changeAddress) {
-            this.address = address;
+        if(personID.charAt(0) % 2 != 0) {
+            changeID = true;
         }
 
-        return false;
+        if(changeAddress) {
+            this.address = address;
+            updateMade = true;
+        }
+
+        if(changeID) {
+            this.personID = personID;
+            updateMade = true;
+        }
+
+        return updateMade;
     }
 }
