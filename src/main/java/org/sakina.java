@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.time.LocalDate;
 import java.time.Period;
 
-public class updateDetails {
+public class sakina {
     private String personID;
     private String firstName;
     private String lastName;
