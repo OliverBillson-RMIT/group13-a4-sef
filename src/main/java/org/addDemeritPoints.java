@@ -31,77 +31,62 @@ public class addDemeritPoints {
     }
 
     public String addDemeritPoints(String offenseDate, int points) {
-        if (points < 1 || points > 6) {
-            return "Failed";
-        }
+        if (points < 1 || points > 6) return "Failed";
 
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate offense;
-        try {
-            offense = LocalDate.parse(offenseDate, fmt);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate offenseDay, birthDay;
+      try {
+            offenseDay = LocalDate.parse(offenseDate, formatter);
+            birthDay = LocalDate.parse(birthdate, formatter);
         } catch (DateTimeParseException e) {
             return "Failed";
         }
 
-        LocalDate dob;
-        try {
-            dob = LocalDate.parse(birthdate, fmt);
-        } catch (DateTimeParseException e) {
-            return "Failed";
-        }
-
-        int age = Period.between(dob, LocalDate.now()).getYears();
-
-        int recentPoints = 0;
-        List<String> fileLines = new ArrayList<>();
+        int age = Period.between(birthDay, LocalDate.now()).getYears();
+        int totalRecentPoints = 0;
         String fileName = "demerits.txt";
-        String newLine = personID + "|" + offenseDate + "|" + points;
+        String newEntry = personID + "|" + offenseDate + "|" + points;
 
         try {
             File file = new File(fileName);
             if (!file.exists()) file.createNewFile();
 
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                fileLines.add(line);
-                String[] parts = line.split("\\|");
-                if (parts.length == 3 && parts[0].equals(personID)) {
-                    LocalDate prevDate = LocalDate.parse(parts[1], fmt);
-                    if (prevDate.isAfter(LocalDate.now().minusYears(2))) {
-                        recentPoints += Integer.parseInt(parts[2]);
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split("\\|");
+                    if (parts.length == 3 && parts[0].equals(personID)) {
+                        LocalDate pastDate = LocalDate.parse(parts[1], formatter);
+                        if (pastDate.isAfter(LocalDate.now().minusYears(2))) {
+                            totalRecentPoints += Integer.parseInt(parts[2]);
+                        }
                     }
                 }
             }
-            br.close();
-        } catch (Exception e) {
+        } catch (IOException | DateTimeParseException | NumberFormatException e) {
             return "Failed";
         }
 
-        recentPoints += points;
+        totalRecentPoints += points;
 
-        if ((age < 21 && recentPoints > 6) || (age >= 21 && recentPoints > 12)) {
+        if ((age < 21 && totalRecentPoints > 6) || (age >= 21 && totalRecentPoints > 12)) {
             isSuspended = true;
         }
 
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, true));
-            bw.write(newLine);
-            bw.newLine();
-            bw.close();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            writer.write(newEntry);
+            writer.newLine();
         } catch (IOException e) {
             return "Failed";
         }
 
         return "Success";
- 
     }
+
     public static void main(String[] args) {
-    addDemeritPoints p = new addDemeritPoints("56s_d%&fAB", "01-01-2006");
-
-    String result = p.addDemeritPoints("25-05-2024", 4);
-    System.out.println("Result: " + result);
-    System.out.println("Suspended? " + p.isSuspended());
-}
-
+        addDemeritPoints person = new addDemeritPoints("56s_d%&fAB", "01-01-2006");
+        String result = person.addDemeritPoints("25-05-2024", 4);
+        System.out.println("Result: " + result);
+        System.out.println("Suspended? " + person.isSuspended());
+    }
 }
