@@ -1,5 +1,7 @@
 package org;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -146,17 +148,33 @@ public class AddPerson {
             issuesCount++;
             System.out.println("Birthdate is not valid: Birthdate is not in the format DD-MM-YYYY.");
         }
- 
+
         // We return this value, and use it to check if our details are valid.
         boolean isValid = issuesCount == 0;
-        
+
+        /*
+         * Write details to file:
+         */
+        // Only write to file if our checks are valid. 
+        if (isValid) {
+
+            // Try open a new file, if fail, print to console. 
+            try (FileWriter myWriter = new FileWriter(personID + "-details.txt")) {
+                myWriter.write(personID + "," + firstName + "," + lastName + "," + address + "," + birthdate);
+                myWriter.close();
+            } catch (IOException e) {
+                System.out.println("Details could not be saved to file.");
+                isValid = false;
+            }
+        }
 
         return isValid;
     }
 
     public static void main(String[] args) {
-        AddPersonFunc("2234??7890", "Julian", "Bashir", "32A|Highland Street|Melbourne|Victoria|Australia",
-                "22-02-2005");
+        System.out.println(
+                (AddPersonFunc("2234??7890", "Julian", "Bashir", "32A|Highland Street|Melbourne|Victoria|Australia",
+                        "22-02-2005")));
     }
 }
 /*
