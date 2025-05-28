@@ -14,6 +14,8 @@ public class sakina {
     private HashMap<Date, Integer> demeritPoints; // Hold demerit points and offense day.
     private boolean isSuspended;
 
+    //need to add Oliver's addPerson checks aswell 
+    //need to also modify to change txt file based on updates 
     public boolean updatePersonalDetails(String personID, String firstName, String lastName, String address, String birthdate) {
 
         boolean changeAddress = false;
@@ -44,14 +46,23 @@ public class sakina {
             changeID = true;
         }
 
-        if(changeAddress) {
+        //condition 1
+        if(!changeBirthDate && changeAddress) {
             this.address = address;
             updateMade = true;
         }
 
-        if(changeID) {
+        //condition 3
+        if(!changeBirthDate && changeID) {
             this.personID = personID;
             updateMade = true;
+        }
+
+        //condition 2
+        //add proper check to see if birthday is looking to be updated 
+        if (birthdate != null) {
+            this.birthdate = birthdate;
+            changeBirthDate = true;
         }
 
         return updateMade;
