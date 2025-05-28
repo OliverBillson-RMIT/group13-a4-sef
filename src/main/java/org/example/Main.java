@@ -8,8 +8,8 @@ public class Main {
 
         Scanner scnr = new Scanner(System.in);
 
-        boolean exit = false; 
-        
+        boolean exit = false;
+
         while (!exit) {
 
             System.out.println("Please input which function you would like to run:");
@@ -18,12 +18,14 @@ public class Main {
             System.out.println("2. updatePersonalDetails");
             System.out.println("3. addDemeritPoints\n");
             System.out.println("4. Exit");
-            
+
             System.out.print("Input: ");
             String input = scnr.nextLine();
-            
+
             switch (input) {
-                case "1" -> person.addPerson();
+                case "1" -> person.addPerson("2234??7890", "Julian", "Bashir",
+                        "32|Highland Street|Melbourne|Victoria|Australia",
+                        "22-02-2005");
                 case "2" -> person.updatePersonalDetails();
                 case "3" -> person.addDemeritPoints();
                 case "4" -> exit = true;
@@ -31,5 +33,7 @@ public class Main {
             }
             System.out.println("---------------------------------------------------------------\n");
         }
+
+        scnr.close();
     }
 }
