@@ -27,7 +27,11 @@ public class Main {
                         "32|Highland Street|Melbourne|Victoria|Australia",
                         "22-02-2005");
                 case "2" -> person.updatePersonalDetails();
-                case "3" -> person.addDemeritPoints();
+                case "3" -> {
+                             person.addDemeritPoints("15-06-2024", 4);
+
+}
+
                 case "4" -> exit = true;
                 default -> System.out.println("Please enter a valid input.");
             }

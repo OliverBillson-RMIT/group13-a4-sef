@@ -1,14 +1,23 @@
 package org.example;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 
 public class Person {
@@ -18,8 +27,12 @@ public class Person {
     private String lastName;
     private String address;
     private String birthdate;
-    private HashMap<Date, Integer> demeritPoints; // Hold demerit points and offense day.
-    private boolean isSuspended;
+    private HashMap<LocalDate, Integer> demeritPoints = new HashMap<>(); // Hold demerit points and offense day.
+    private boolean isSuspended = false;
+    public boolean isSuspended() {
+    return isSuspended;
+}
+
 
     public boolean addPerson(String personID, String firstName, String lastName, String address,
             String birthdate) {
@@ -145,6 +158,11 @@ public class Person {
          */
         // Only write to file if our checks are valid. 
         if (isValid) {
+ this.personID = personID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.birthdate = birthdate;
 
             // Try open a new file, if fail, print to console. 
             try (FileWriter myWriter = new FileWriter(personID + "-details.txt")) {
@@ -168,13 +186,78 @@ public class Person {
         return true;
     }
     
-    public String addDemeritPoints() {
-        // TODO: Implement ME!
-        // Don't forget to create your own file, don't edit this file!!
-        // We will combine our functions later!
-        System.out.println("addDemeritPoints");
+    public String addDemeritPoints(String offenseDate, int points) {
+        // Defensive checks
+        if (this.personID == null || this.birthdate == null) return "Failed";
+        
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate offenseDay;
+        try {
+            offenseDay = LocalDate.parse(offenseDate, formatter);
+        } catch (DateTimeParseException e) {
+            return "Failed";
+        }
+        if (points < 1 || points > 6) return "Failed";
+
+        // Parse birthdate and calculate age
+        LocalDate birthDay = LocalDate.parse(this.birthdate, formatter);
+        int age = Period.between(birthDay, LocalDate.now()).getYears();
+
+        // Load all past demerits for this person from file into HashMap
+        loadDemeritsFromFile();
+
+        // Add new offense to HashMap
+        demeritPoints.put(offenseDay, points);
+
+        // Calculate total points in last 2 years
+        int totalPoints = 0;
+        LocalDate now = LocalDate.now();
+        for (Map.Entry<LocalDate, Integer> entry : demeritPoints.entrySet()) {
+    if (!entry.getKey().isBefore(now.minusYears(2))) {
+        totalPoints += entry.getValue();
+    }
+}
+
+
+        // Suspension logic
+        if ((age < 21 && totalPoints > 6) || (age >= 21 && totalPoints > 12)) {
+            isSuspended = true;
+        }
+
+        // Append new offense to file
+        String fileName = "demerits.txt";
+        String toWrite = personID + "|" + offenseDate + "|" + points;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true))) {
+            writer.write(toWrite);
+            writer.newLine();
+        } catch (IOException e) {
+            return "Failed";
+        }
+
         return "Success";
     }
+
+    // Loads all demerits for this person from the file into the HashMap
+    private void loadDemeritsFromFile() {
+        demeritPoints.clear(); // Clear previous data
+        String fileName = "demerits.txt";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String row;
+            while ((row = reader.readLine()) != null) {
+                String[] parts = row.split("\\|");
+                if (parts.length == 3 && parts[0].equals(personID)) {
+                    LocalDate date = LocalDate.parse(parts[1], formatter);
+                    int pts = Integer.parseInt(parts[2]);
+                    demeritPoints.put(date, pts);
+                }
+            }
+        } catch (IOException | DateTimeParseException | NumberFormatException e) {
+            // Ignore if file not found or lines are malformed
+        }
+    }
+
+    
 
     /*
      * Helper functions
