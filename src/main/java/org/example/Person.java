@@ -178,12 +178,57 @@ public class Person {
     } // | addPerson
 
     
-    public boolean updatePersonalDetails() {
-        // TODO: Implement ME!
-        // Don't forget to create your own file, don't edit this file!!
-        // We will combine our functions later!
-        System.out.println("updatePersonalDetails");
-        return true;
+    public boolean updatePersonalDetails(String personID, String firstName, String lastName, String address, String birthdate) {
+        
+        boolean changeAddress = false;
+        boolean changeBirthDate = false;
+        boolean changeID = false;
+        boolean updateMade = false;
+
+        LocalDate currDate = LocalDate.now();
+        String[] words = birthdate.split("\\s+");
+
+        String d = words[0];
+        String m = words[1];
+        String y = words[2];
+
+        int day = Integer.parseInt(d);
+        int month = Integer.parseInt(m);
+        int year = Integer.parseInt(y);
+
+        LocalDate date = LocalDate.of(day, month, year);
+        Period age = Period.between(date, currDate);
+
+        if(age.getYears() > 18) {
+            changeAddress = true;
+        }
+
+        if(personID.charAt(0) % 2 != 0) {
+            changeID = true;
+        }
+
+        //condition 1
+        if(!changeBirthDate && changeAddress) {
+            this.address = address;
+            updateMade = true;
+        }
+
+        //condition 3
+        if(!changeBirthDate && changeID) {
+            this.personID = personID;
+            updateMade = true;
+        }
+
+        //condition 2
+        //add proper check to see if birthday is looking to be updated 
+        if (birthdate != null) {
+            this.birthdate = birthdate;
+            changeBirthDate = true;
+        }
+
+        
+
+        return updateMade;
     }
     
     public String addDemeritPoints(String offenseDate, int points) {
