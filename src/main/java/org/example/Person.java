@@ -178,55 +178,78 @@ public class Person {
     } // | addPerson
 
     
-    public boolean updatePersonalDetails(String personID, String firstName, String lastName, String address, String birthdate) {
-        
+    public boolean updatePersonalDetails(String newPersonID, String newFirstName, String newLastName, String newAddress, String newBirthdate) {
         boolean changeAddress = false;
-        boolean changeBirthDate = false;
         boolean changeID = false;
         boolean updateMade = false;
+        boolean canChangeOtherDetails = true;
 
         LocalDate currDate = LocalDate.now();
-        String[] words = birthdate.split("\\s+");
+        String[] words = newBirthdate.trim().split("\\s+");
+        if (words.length != 3) return false;
 
-        String d = words[0];
-        String m = words[1];
-        String y = words[2];
+        int day = Integer.parseInt(words[0]);
+        int month = Integer.parseInt(words[1]);
+        int year = Integer.parseInt(words[2]);
 
-        int day = Integer.parseInt(d);
-        int month = Integer.parseInt(m);
-        int year = Integer.parseInt(y);
+        LocalDate newDate = LocalDate.of(year, month, day);
+        Period age = Period.between(newDate, currDate);
 
-        LocalDate date = LocalDate.of(day, month, year);
-        Period age = Period.between(date, currDate);
-
-        if(age.getYears() > 18) {
-            changeAddress = true;
+        // check if address can be changed
+        if (age.getYears() < 18) {
+            changeAddress = false;
         }
 
-        if(personID.charAt(0) % 2 != 0) {
-            changeID = true;
+        // check if ID can be changed
+        char firstChar = newPersonID.charAt(0);
+        if (Character.isDigit(firstChar) && (firstChar - '0') % 2 == 0) {
+            changeID = false;
         }
 
-        //condition 1
-        if(!changeBirthDate && changeAddress) {
-            this.address = address;
+        // check if birthday is changing
+        boolean isBirthdateChanging = !this.birthdate.equals(newBirthdate);
+        if (isBirthdateChanging) {
+            canChangeOtherDetails = false; // if birthdate changes, no other details should be able to
+        }
+
+        if (isBirthdateChanging && canChangeOtherDetails) {
+            return false; // birthday changing but other details also changing is not allowed
+        }
+
+        // check what we can update whilst following the set rules
+        if (isBirthdateChanging) {
+            this.birthdate = newBirthdate;
             updateMade = true;
+        } 
+        else {
+            if (!this.firstName.equals(newFirstName)) {
+                this.firstName = newFirstName;
+                updateMade = true;
+            }
+            if (!this.lastName.equals(newLastName)) {
+                this.lastName = newLastName;
+                updateMade = true;
+            }
+            if (!this.address.equals(newAddress) && changeAddress) {
+                this.address = newAddress;
+                updateMade = true;
+            }
+            if (!this.personID.equals(newPersonID) && changeID) {
+                this.personID = newPersonID;
+                updateMade = true;
+            }
         }
 
-        //condition 3
-        if(!changeBirthDate && changeID) {
-            this.personID = personID;
-            updateMade = true;
+        // only write to file if update is allowed
+        if (updateMade) {
+            try (FileWriter writer = new FileWriter("updatedPerson_list.txt", true)) {
+                writer.write(this.personID + "," + this.firstName + "," + this.lastName + "," + this.address + "," + this.birthdate + "\n");
+            } 
+            catch (IOException e) {
+                System.out.println("Failed updating details: " + e.getMessage());
+                return false;
+            }
         }
-
-        //condition 2
-        //add proper check to see if birthday is looking to be updated 
-        if (birthdate != null) {
-            this.birthdate = birthdate;
-            changeBirthDate = true;
-        }
-
-        
 
         return updateMade;
     }
