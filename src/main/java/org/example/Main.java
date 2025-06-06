@@ -26,11 +26,12 @@ public class Main {
                 case "1" -> person.addPerson("2234??7890", "Julian", "Bashir",
                         "32|Highland Street|Melbourne|Victoria|Australia",
                         "22-02-2005");
-                case "2" -> person.updatePersonalDetails();
+                case "2" -> person.updatePersonalDetails("5634??7890", "John", "Bob",
+                        "32|Highland Street|Melbourne|Victoria|Australia", "23-02-2005");
                 case "3" -> {
-                             person.addDemeritPoints("15-06-2024", 4);
+                    person.addDemeritPoints("15-06-2024", 4);
 
-}
+                }
 
                 case "4" -> exit = true;
                 default -> System.out.println("Please enter a valid input.");
