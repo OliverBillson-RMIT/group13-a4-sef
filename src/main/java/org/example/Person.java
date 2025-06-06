@@ -43,7 +43,7 @@ public class Person {
         // Only write to file if our checks are valid.
         if (isValid) {
 
-            // Our details are valid, we can save our details to person obj. 
+            // Our details are valid, we can save our details to person obj.
             this.personID = personID;
             this.firstName = firstName;
             this.lastName = lastName;
@@ -51,11 +51,13 @@ public class Person {
             this.birthdate = birthdate;
 
             // Try open a new file, if fail, print to console.
-            try (FileWriter myWriter = new FileWriter(personID + "-details.txt")) { // our file name is {personID}-details.txt, so each file should be unique. 
+            try (FileWriter writer = new FileWriter(personID + "-details.txt")) { // our file name is
+                                                                                  // {personID}-details.txt, so each
+                                                                                  // file should be unique.
                 // We write as a comma seperate file
-                myWriter.write(personID + "," + firstName + "," + lastName + "," + address + "," + birthdate);
+                writer.write(personID + "," + firstName + "," + lastName + "," + address + "," + birthdate);
                 // Close to save file.
-                myWriter.close();
+                writer.close();
             } catch (IOException e) {
                 System.out.println("Details could not be saved to file.");
                 isValid = false;
@@ -68,14 +70,23 @@ public class Person {
     public boolean updatePersonalDetails(String newPersonID, String newFirstName, String newLastName, String newAddress,
             String newBirthdate) {
         boolean changeAddress = false;
-        boolean changeID = false;
+        boolean changeID = true;
         boolean updateMade = false;
         boolean canChangeOtherDetails = true;
 
-        LocalDate currDate = LocalDate.now();
-        String[] words = newBirthdate.trim().split("\\s+");
-        if (words.length != 3)
+        // Validation from Add Person:
+        boolean isValid = 0 == validatePersonDetails(newPersonID, newFirstName, newLastName, newAddress, newBirthdate);
+
+        if (!isValid) {
             return false;
+        }
+
+        LocalDate currDate = LocalDate.now();
+        String[] words = newBirthdate.trim().split("\\-");
+
+        if (words.length != 3) {
+            return false;
+        }
 
         int day = Integer.parseInt(words[0]);
         int month = Integer.parseInt(words[1]);
@@ -103,12 +114,14 @@ public class Person {
 
         if (isBirthdateChanging && canChangeOtherDetails) {
             return false; // birthday changing but other details also changing is not allowed
+
         }
 
         // check what we can update whilst following the set rules
         if (isBirthdateChanging) {
             this.birthdate = newBirthdate;
             updateMade = true;
+
         } else {
             if (!this.firstName.equals(newFirstName)) {
                 this.firstName = newFirstName;
@@ -130,13 +143,14 @@ public class Person {
 
         // only write to file if update is allowed
         if (updateMade) {
-            try (FileWriter writer = new FileWriter("updatedPerson_list.txt", true)) {
+            try (FileWriter writer = new FileWriter(personID + "-updated-details.txt")) {
                 writer.write(this.personID + "," + this.firstName + "," + this.lastName + "," + this.address + ","
                         + this.birthdate + "\n");
             } catch (IOException e) {
                 System.out.println("Failed updating details: " + e.getMessage());
                 return false;
             }
+
         }
 
         return updateMade;
@@ -236,16 +250,17 @@ public class Person {
         return output;
     }
 
-
     /**
-     * Takes person details, and checks them against various conditions. If any fail validation, return the number of issues.
+     * Takes person details, and checks them against various conditions. If any fail
+     * validation, return the number of issues.
      * 
      * @param personID
      * @param firstName
      * @param lastName
      * @param address
      * @param birthdate
-     * @return issueCount, Integer. Counts the number of issues with inputs. TO check if no issues were found. 
+     * @return issueCount, Integer. Counts the number of issues with inputs. TO
+     *         check if no issues were found.
      */
     public static int validatePersonDetails(String personID, String firstName, String lastName, String address,
             String birthdate) {
