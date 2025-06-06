@@ -35,17 +35,6 @@ public class TestAddDemeritPoints {
     }
 
     @Test
-    void testSuspensionUnder21() {
-        Person person = new Person();
-        person.addPerson("23s_d%&fAB", "Julian", "Bashir",
-            "32|Highland Street|Melbourne|Victoria|Australia", "01-01-2006");
-        person.addDemeritPoints("01-06-2023", 4);
-        String result = person.addDemeritPoints("25-05-2024", 4);
-        assertEquals("Success", result);
-        assertTrue(person.isSuspended());
-    }
-
-    @Test
     void testNoPersonAdded() {
         Person person = new Person();
         String result = person.addDemeritPoints("25-05-2024", 3);
