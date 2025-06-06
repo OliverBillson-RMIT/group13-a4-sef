@@ -26,8 +26,9 @@ public class Main {
                 case "1" -> person.addPerson("2234??7890", "Julian", "Bashir",
                         "32|Highland Street|Melbourne|Victoria|Australia",
                         "22-02-2005");
-                case "2" -> person.updatePersonalDetails("3534??7890", "John", "Bob",
-                        "32|Highland Street|Melbourne|Victoria|Australia", "22-02-2005");
+                case "2" -> person.updatePersonalDetails("3334??7890", "John", "Bashir",
+                        "32|Highland Street|Melbourne|Victoria|Australia",
+                        "23-12-2006");
                 case "3" -> {
                     person.addDemeritPoints("15-06-2024", 4);
 

@@ -69,10 +69,9 @@ public class Person {
 
     public boolean updatePersonalDetails(String newPersonID, String newFirstName, String newLastName, String newAddress,
             String newBirthdate) {
-        boolean changeAddress = false;
-        boolean changeID = true;
+        boolean changeAddress = true;
+        boolean changeID = false;
         boolean updateMade = false;
-        boolean canChangeOtherDetails = true;
 
         // Validation from Add Person:
         boolean isValid = 0 == validatePersonDetails(newPersonID, newFirstName, newLastName, newAddress, newBirthdate);
@@ -102,19 +101,29 @@ public class Person {
 
         // check if ID can be changed
         char firstChar = newPersonID.charAt(0);
-        if (Character.isDigit(firstChar) && (firstChar - '0') % 2 == 0) {
-            changeID = false;
+        if (Character.isDigit(firstChar) && (firstChar - '0') % 2 != 0) {
+            changeID = true;
         }
 
         // check if birthday is changing
         boolean isBirthdateChanging = !this.birthdate.equals(newBirthdate);
         if (isBirthdateChanging) {
-            canChangeOtherDetails = false; // if birthdate changes, no other details should be able to
-        }
+            // If birthday changes, and anything else changes, return false for all. 
+            if (!this.firstName.equals(newFirstName)) {
+                return false;
+            }
+            if (!this.lastName.equals(newLastName)) {
+                return false;
 
-        if (isBirthdateChanging && canChangeOtherDetails) {
-            return false; // birthday changing but other details also changing is not allowed
+            }
+            if (!this.address.equals(newAddress)) {
+                return false;
 
+            }
+            if (!this.personID.equals(newPersonID)) {
+                return false;
+
+            }
         }
 
         // check what we can update whilst following the set rules
